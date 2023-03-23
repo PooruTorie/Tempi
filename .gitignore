@@ -4,6 +4,7 @@
 db/data
 
 broker/data
+broker/log
 
 frontend/node_modules
 frontend/.idea
