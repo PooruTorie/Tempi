@@ -1,1 +1,15 @@
-.idea/
+.idea
+*.bak
+
+db/data
+
+broker/data
+
+frontend/node_modules
+frontend/.idea
+frontend/package-lock.json
+
+client/.idea
+client/.pio
+client/CMakeListsPrivate.txt
+client/cmake-build-*/

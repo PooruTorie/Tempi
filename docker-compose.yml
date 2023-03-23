@@ -2,22 +2,32 @@ version: "3.9"
 services:
   frontend:
     build: frontend
+    depends_on:
+      - db
+      - broker
     ports:
-        - "8000:80"
+      - "80:3000"
   db:
     image: mysql
     environment:
-        - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=secret
     volumes:
-        - "./db/data:/var/lib/mysql"
+      - "./db/data:/var/lib/mysql"
   broker:
     image: eclipse-mosquitto
     ports:
-        - "1883:1883"
-        - "9001:9001"
+      - "1883:1883"
+      - "9001:9001"
     volumes:
-        - "./broker/mosquitto.conf:/mosquitto/config/mosquitto.conf"
-        - "./broker/mosquitto.log:/mosquitto/mosquitto.log"
-        - "./broker/data:/mosquitto/data"
-    profiles:
-        - test
+      - "./broker/mosquitto.conf:/mosquitto/config/mosquitto.conf"
+      - "./broker/password_file:/mosquitto/password_file"
+      - "./broker/log:/mosquitto/log"
+      - "./broker/data:/mosquitto/data"
+  mqtt_explorer:
+    image: smeagolworms4/mqtt-explorer:latest
+    depends_on:
+      - broker
+    ports:
+      - "4000:4000"
+    volumes:
+      - "./broker/explorer:/mqtt-explorer/config"
