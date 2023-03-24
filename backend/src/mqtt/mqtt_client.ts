@@ -1,0 +1,63 @@
+import * as mqtt from "mqtt";
+import {EventEmitter} from "events";
+
+export default class MqttClient extends EventEmitter {
+    private connection: mqtt.MqttClient;
+    private sensors: Sensor[] = [];
+
+    constructor(host: string) {
+        super();
+        this.connection = mqtt.connect(host, {
+            clientId: "tempi-backend"
+        });
+        this.connection.on("error", (error) => {
+            console.log("Can't connect" + error);
+        });
+        this.connection.on("connect", () => {
+            this.connection.subscribe("sensor");
+            this.connection.on("message", (topic, message) => {
+                if (topic === "sensor") {
+                    this.registerNewSensor(JSON.parse(message.toString()));
+                    return;
+                }
+                this.emit("message", topic, message);
+            });
+        });
+    }
+
+    public getSensors(): Sensor[] {
+        return this.sensors;
+    }
+
+    subscribe(topic: string) {
+        this.connection.subscribe(topic);
+    }
+
+    private registerNewSensor(data: { uuid: string, name: string }) {
+        const sensor = new Sensor(this, data.uuid, data.name);
+        this.sensors.push(sensor);
+        this.emit("newSensor", sensor);
+    }
+}
+
+export class Sensor extends EventEmitter {
+    private uuid: string;
+    private name: string;
+    private connection: MqttClient;
+    private readonly topic: string;
+
+    constructor(connection: MqttClient, uuid: string, name: string) {
+        super();
+        this.connection = connection;
+        this.topic = "sensor/" + uuid;
+        this.uuid = uuid;
+        this.name = name;
+
+        connection.subscribe(this.topic);
+        connection.on("message", (topic, message) => {
+            if (topic === this.topic) {
+                this.emit("message", topic, message);
+            }
+        });
+    }
+}

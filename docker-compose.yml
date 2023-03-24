@@ -3,10 +3,16 @@ services:
   frontend:
     build: frontend
     depends_on:
+      - backend
+    ports:
+      - "80:3000"
+  backend:
+    build: backend
+    depends_on:
       - db
       - broker
     ports:
-      - "80:3000"
+      - "3000:3000"
   db:
     image: mysql
     environment:
@@ -16,8 +22,8 @@ services:
   broker:
     image: eclipse-mosquitto
     ports:
-      - "11883:1883"
-      - "19001:9001"
+      - "1883:1883"
+      - "9001:9001"
     volumes:
       - "./broker/mosquitto.conf:/mosquitto/config/mosquitto.conf"
       - "./broker/password_file:/mosquitto/password_file"
