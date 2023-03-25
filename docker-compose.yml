@@ -19,6 +19,8 @@ services:
       - MYSQL_ROOT_PASSWORD=secret
     volumes:
       - "./db/data:/var/lib/mysql"
+    ports:
+      - "3306:3306"
   broker:
     image: eclipse-mosquitto
     ports:
