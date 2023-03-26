@@ -33,8 +33,8 @@ export default class MqttClient extends EventEmitter {
         this.connection.subscribe(topic);
     }
 
-    private registerNewSensor(data: { uuid: string, name: string }) {
-        const sensor = new Sensor(this, data.uuid, data.name);
+    private registerNewSensor(data: { uuid: string, ip: string }) {
+        const sensor = new Sensor(this, data.uuid, data.ip);
         this.sensors.push(sensor);
         this.emit("newSensor", sensor);
     }
@@ -42,16 +42,16 @@ export default class MqttClient extends EventEmitter {
 
 export class Sensor extends EventEmitter {
     private uuid: string;
-    private name: string;
+    private ip: string;
     private connection: MqttClient;
     private readonly topic: string;
 
-    constructor(connection: MqttClient, uuid: string, name: string) {
+    constructor(connection: MqttClient, uuid: string, ip: string) {
         super();
         this.connection = connection;
         this.topic = "sensor/" + uuid;
         this.uuid = uuid;
-        this.name = name;
+        this.ip = ip;
 
         connection.subscribe(this.topic);
         connection.on("message", (topic, message) => {

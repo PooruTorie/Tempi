@@ -1,0 +1,7 @@
+{
+  "mqtt_port": "1883",
+  "discover_port": "12666",
+  "device_type": "temperature",
+  "ssid": "nice_wlan",
+  "password": "devel"
+}
