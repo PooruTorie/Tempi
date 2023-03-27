@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker-compose --profile test up
+docker-compose up
