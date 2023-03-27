@@ -9,11 +9,11 @@
       "encryption": false,
       "subscriptions": [
         {
-          "topic": "#",
+          "topic": "tempi/#",
           "qos": 0
         },
         {
-          "topic": "$SYS/#",
+          "topic": "#",
           "qos": 0
         }
       ],

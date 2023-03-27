@@ -31,8 +31,8 @@ services:
       - "./broker/password_file:/mosquitto/password_file"
       - "./broker/log:/mosquitto/log"
       - "./broker/data:/mosquitto/data"
-  mqtt_explorer:
-    image: smeagolworms4/mqtt-explorer:latest
+  explorer:
+    image: smeagolworms4/mqtt-explorer
     depends_on:
       - broker
     ports:

@@ -1,7 +1,8 @@
 import {AreaChart, Card, Col, Grid, Metric, Tab, TabList, Text, TextInput, Title} from "@tremor/react";
 import {SearchIcon} from "@heroicons/react/solid";
-import Logo from "./assets/logo";
 import {Component} from "react";
+
+import {ReactComponent as Logo} from "./assets/logo.svg";
 
 const data = [
     {
@@ -108,17 +109,17 @@ export default class App extends Component {
                     </Col>
                 </Grid>
             </Card>
-            <Grid numCols={6} className="h-[82%]">
-                <Col className="h-full">
-                    <Card className="mt-6 h-full">
+            <Grid numCols={6} className="h-[86%]">
+                <Col className="h-[100%]">
+                    <Card className="mt-3 h-full">
                         <TabList defaultValue={"test1"} className="flex-col border-0">
                             <Tab value={"test1"} text={"Test"} className="!ml-0"/>
                             <Tab value={"test2"} text={"Test"} className="!ml-0"/>
                         </TabList>
                     </Card>
                 </Col>
-                <Col numColSpan={5} className="overflow-auto">
-                    <div className="w-full border-none h-full p-4 border-x border-gray-200">
+                <Col numColSpan={5} className="h-[101%] overflow-auto">
+                    <div className="w-full border-none h-max p-4 border-x border-gray-200">
                         <Metric>Dashboard</Metric>
                         <Text>Sales and growth stats for anonymous inc.</Text>
                         <TabList defaultValue="1" onValueChange={(selectedView) => this.setState({selectedView})}
@@ -182,7 +183,7 @@ export default class App extends Component {
                     </div>
                 </Col>
             </Grid>
-            <footer className="mt-14 m-auto h-[3%]">
+            <footer className="mt-5 m-auto h-[3%]">
                 <Text className="text-center">Tempi 2023</Text>
             </footer>
         </>;
