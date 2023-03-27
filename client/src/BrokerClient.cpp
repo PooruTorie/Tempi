@@ -38,5 +38,5 @@ void BrokerClient::registerDeviceMessage() {
 }
 
 void BrokerClient::publishToSensorTopic(const String &varName, const String &value) {
-    client->publish("sensor/" + API::uuid + "/" + varName, value);
+    client->publish("tempi/sensor/" + API::uuid + "/" + varName, value);
 }

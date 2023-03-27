@@ -14,9 +14,9 @@ export default class MqttClient extends EventEmitter {
             console.log("Can't connect" + error);
         });
         this.connection.on("connect", () => {
-            this.connection.subscribe("sensor");
+            this.connection.subscribe("tempi/device");
             this.connection.on("message", (topic, message) => {
-                if (topic === "sensor") {
+                if (topic === "tempi/device") {
                     this.registerNewSensor(JSON.parse(message.toString()));
                     return;
                 }
@@ -49,13 +49,13 @@ export class Sensor extends EventEmitter {
     constructor(connection: MqttClient, uuid: string, ip: string) {
         super();
         this.connection = connection;
-        this.topic = "sensor/" + uuid;
+        this.topic = "tempi/sensor/" + uuid;
         this.uuid = uuid;
         this.ip = ip;
 
-        connection.subscribe(this.topic);
+        connection.subscribe(this.topic + "/#");
         connection.on("message", (topic, message) => {
-            if (topic === this.topic) {
+            if (topic.startsWith(this.topic)) {
                 this.emit("message", topic, message);
             }
         });
