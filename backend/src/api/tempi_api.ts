@@ -1,11 +1,10 @@
 // @ts-ignore
-import express, {Express} from "express";
+import express, {Express, Router} from "express";
 import DataBase from "../db/db_connection";
-import {lookup} from "dns";
-import {hostname} from "os";
 
 import SensorRouter from "./routes/sensor";
 import SensorDiscovery from "../discovery/sensor_discovery";
+import * as bodyParser from "body-parser";
 
 export default class TempiAPI {
     public database: DataBase;
@@ -17,12 +16,19 @@ export default class TempiAPI {
         this.port = port;
         this.database = database;
 
-        this.app.get("/discover", async (req, res) => {
-            const brokerIp: string = await new Promise<string>((resolve) => lookup(hostname(), (err, address) => resolve(address)));
-            await SensorDiscovery.startDiscovery(brokerIp, discoveryPort);
+        // parse application/x-www-form-urlencoded
+        this.app.use(bodyParser.urlencoded({extended: false}))
+
+        // parse application/json
+        this.app.use(bodyParser.json())
+
+        SensorDiscovery.setup(discoveryPort);
+
+        this.app.get("/api/discover", async (req, res) => {
+            await SensorDiscovery.startDiscovery(discoveryPort);
             res.json({success: true});
         });
-        this.app.use(SensorRouter.route, new SensorRouter(this).get());
+        this.app.use("/api" + SensorRouter.route, new SensorRouter(this).get());
     }
 
     serve() {

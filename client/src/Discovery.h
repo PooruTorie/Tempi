@@ -5,6 +5,7 @@
 #ifndef CLIENT_DISCOVERY_H
 #define CLIENT_DISCOVERY_H
 
+#include "Arduino.h"
 #include "AsyncUDP.h"
 
 class Discovery {

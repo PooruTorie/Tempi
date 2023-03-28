@@ -8,6 +8,7 @@ export default class MqttClient extends EventEmitter {
     constructor(host: string) {
         super();
         this.connection = mqtt.connect(host, {
+            port: 11883,
             clientId: "tempi-backend"
         });
         this.connection.on("error", (error) => {
@@ -41,23 +42,43 @@ export default class MqttClient extends EventEmitter {
 }
 
 export class Sensor extends EventEmitter {
-    private uuid: string;
-    private ip: string;
     private connection: MqttClient;
-    private readonly topic: string;
+    private readonly _topic: string;
+    private readonly _uuid: string;
+    private readonly _ip: string;
 
     constructor(connection: MqttClient, uuid: string, ip: string) {
         super();
         this.connection = connection;
-        this.topic = "tempi/sensor/" + uuid;
-        this.uuid = uuid;
-        this.ip = ip;
+        this._topic = "tempi/sensor/" + uuid;
+        this._uuid = uuid;
+        this._ip = ip;
 
-        connection.subscribe(this.topic + "/#");
+        connection.subscribe(this._topic + "/#");
         connection.on("message", (topic, message) => {
-            if (topic.startsWith(this.topic)) {
+            if (topic.startsWith(this._topic)) {
                 this.emit("message", topic, message);
             }
         });
+    }
+
+    get uuid(): string {
+        return this._uuid;
+    }
+
+    get ip(): string {
+        return this._ip;
+    }
+
+    get topic(): string {
+        return this._topic;
+    }
+
+    toString() {
+        return "Sensor{" +
+            "ip: " + this._ip +
+            ", uuid: " + this._uuid +
+            ", topic: " + this._topic +
+            "}";
     }
 }

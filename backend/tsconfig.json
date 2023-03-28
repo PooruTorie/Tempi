@@ -4,10 +4,14 @@
     "target": "es5",
     "sourceMap": true,
     "strict": true,
+    "noImplicitAny": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "build"
+    "outDir": "build",
+    "typeRoots": [
+      "./types"
+    ]
   },
   "exclude": [
     "node_modules"

@@ -1,42 +1,37 @@
 import * as dgram from "dgram";
-import {clearInterval} from "timers";
 import {request} from "http";
+import * as ip from "ip";
 
 export default class SensorDiscovery {
 
-    static helloMessage: Buffer = new Buffer("HELLO");
+    static socket: dgram.Socket;
+    static helloMessage: string = "OwO";
 
-    public static startDiscovery(brokerIp: string, discoveryPort: number, timeout: number = 5) {
-        return new Promise((resolve) => {
-            const socket = dgram.createSocket("udp4");
+    public static setup(discoveryPort: number) {
+        this.socket = dgram.createSocket("udp4");
 
-            console.log("Starting Discovery...")
-            let helloInterval: NodeJS.Timer;
+        const address: string = ip.address();
 
-            socket.on("listening", function () {
-                socket.setBroadcast(true);
-                helloInterval = setInterval(() => {
-                    console.log("Broadcasting Discovery Hello");
-                    socket.send(SensorDiscovery.helloMessage, 0, SensorDiscovery.helloMessage.length, discoveryPort, "255.255.255.255");
-                }, 1000);
-            });
-
-            socket.on("message", (message: string, remote: dgram.RemoteInfo) => {
-                if (message === "DEVICE") {
-                    console.log("Device Found:", remote.address + ":" + remote.port);
-                    request("http://" + remote.address + "/broker?ip=" + brokerIp, (res) => {
-                        console.log("Broker send Responded:", res.statusCode);
-                    });
-                }
-            });
-
-            socket.bind(discoveryPort);
-
-            setTimeout(() => {
-                clearInterval(helloInterval);
-                socket.close(resolve.bind(this, true));
-            }, (1 + timeout) * 1000);
+        console.log("Listening Discovery...")
+        this.socket.on("message", (message: Buffer, remote: dgram.RemoteInfo) => {
+            if (message.toString() === "UwU") {
+                console.log("Device Found:", remote.address + ":" + remote.port);
+                request("http://" + remote.address + "/broker?ip=" + address, (res) => {
+                    console.log("Broker send Responded:", res.statusCode);
+                }).end();
+            }
         });
+
+        this.socket.bind(discoveryPort);
+    }
+
+    public static startDiscovery(discoveryPort: number) {
+        const netInterface = ip.networkInterface();
+        const broadcastAddress: string = ip.subnet(netInterface.address, netInterface.netmask).broadcastAddress;
+
+        console.log("Broadcasting Discovery Hello");
+        this.socket.setBroadcast(true);
+        this.socket.send(SensorDiscovery.helloMessage, 0, SensorDiscovery.helloMessage.length, discoveryPort, broadcastAddress);
     }
 
 }
