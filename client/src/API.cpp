@@ -9,7 +9,7 @@
 
 String API::uuid = "";
 
-API::API(BrokerClient *client) : client(client), server(new AsyncWebServer(CONFIG_DISCOVER_PORT)) {
+API::API(BrokerClient *client) : client(client), server(new AsyncWebServer(80)) {
     server->on("/", HTTP_GET, [this](AsyncWebServerRequest *request) {
         DynamicJsonDocument configJSON(1024);
         configJSON["uuid"] = API::uuid;

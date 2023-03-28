@@ -9,12 +9,14 @@
 #include "BrokerClient.h"
 
 #include "DS18B20.h"
+#include "Discovery.h"
 
-#define SENSOR_PIN 2
+#define SENSOR_PIN 18
 
 WiFiClient net;
 BrokerClient client(net);
 API api(&client);
+Discovery discovery;
 
 OneWire oneWire(SENSOR_PIN);
 DS18B20 sensor(&oneWire);
@@ -50,6 +52,8 @@ void setup() {
     WifiConnector::connect(CONFIG_SSID, CONFIG_PASSWORD);
 
     API::generateUUID();
+
+    discovery.setup();
 
     RemoteUpdater::setup((String("Tempi ") + CONFIG_DEVICE_TYPE).c_str());
 
