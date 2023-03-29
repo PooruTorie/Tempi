@@ -1,4 +1,4 @@
-import {Grid, Text} from "@tremor/react";
+import {Grid} from "@tremor/react";
 import {Component} from "react";
 import TopBar from "./menu/TopBar";
 import MainContentPanel from "./main/MainContentPanel";
@@ -13,9 +13,6 @@ export default class App extends Component {
                 <SideMenu/>
                 <MainContentPanel/>
             </Grid>
-            <footer className="mt-5 m-auto h-[3%]">
-                <Text className="text-center">Tempi 2023</Text>
-            </footer>
         </>
     }
 

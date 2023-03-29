@@ -6,7 +6,7 @@ import {ReactComponent as Logo} from "../assets/logo.svg";
 export default class TopBar extends Component {
 
     render() {
-        return <Card className="h-[9%]">
+        return <Card className="h-[10%]">
             <Grid numCols={10}>
                 <Col numColSpan={1}>
                     <div className="w-full -ml-2 -mt-8">

@@ -1,6 +1,7 @@
 import {Component} from "react";
 import {AreaChart, Card, Col, Grid, Metric, Tab, TabList, Text, Title} from "@tremor/react";
 import NewSensorManager from "./NewSensorManager";
+import SensorCard from "./sensor/SensorCard";
 
 export default class MainContentPanel extends Component {
 
@@ -22,6 +23,8 @@ export default class MainContentPanel extends Component {
                     <Tab value="1" text="Page 1"/>
                     <Tab value="2" text="Page 2"/>
                 </TabList>
+
+                <SensorCard sensor={{type: "temperature"}}/>
 
                 {this.state.selectedView === "1" ? (
                     <>
