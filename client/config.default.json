@@ -1,7 +1,9 @@
 {
-  "mqtt_port": "1883",
-  "discover_port": "12666",
+  "mqtt_port": 1883,
+  "discover_port": 12666,
+  "keep_alive_delay": 10000,
   "device_type": "temperature",
   "ssid": "nice_wlan",
-  "password": "devel"
+  "password": "devel",
+  "ota_password": "admin"
 }

@@ -1,5 +1,6 @@
 import * as mqtt from "mqtt";
 import {EventEmitter} from "events";
+import axios from "axios";
 
 export default class MqttClient extends EventEmitter {
     private connection: mqtt.MqttClient;
@@ -8,7 +9,7 @@ export default class MqttClient extends EventEmitter {
     constructor(host: string) {
         super();
         this.connection = mqtt.connect(host, {
-            port: 11883,
+            port: 1883,
             clientId: "tempi-backend"
         });
         this.connection.on("error", (error) => {
@@ -36,8 +37,10 @@ export default class MqttClient extends EventEmitter {
 
     private registerNewSensor(data: { uuid: string, ip: string }) {
         const sensor = new Sensor(this, data.uuid, data.ip);
-        this.sensors.push(sensor);
-        this.emit("newSensor", sensor);
+        sensor.on("init", () => {
+            this.sensors.push(sensor);
+            this.emit("newSensor", sensor);
+        });
     }
 }
 
@@ -46,6 +49,7 @@ export class Sensor extends EventEmitter {
     private readonly _topic: string;
     private readonly _uuid: string;
     private readonly _ip: string;
+    private _version: string = "x.x.x";
 
     constructor(connection: MqttClient, uuid: string, ip: string) {
         super();
@@ -60,6 +64,14 @@ export class Sensor extends EventEmitter {
                 this.emit("message", topic, message);
             }
         });
+
+        this.requestConfiguration().then(() => this.emit("init"));
+    }
+
+    private _type: string = "not_detected";
+
+    get type(): string {
+        return this._type;
     }
 
     get uuid(): string {
@@ -74,11 +86,21 @@ export class Sensor extends EventEmitter {
         return this._topic;
     }
 
+    get firmwareVersion(): string {
+        return this._version;
+    }
+
     toString() {
         return "Sensor{" +
             "ip: " + this._ip +
             ", uuid: " + this._uuid +
             ", topic: " + this._topic +
             "}";
+    }
+
+    private async requestConfiguration() {
+        const res = await axios.get("http://" + this._ip + "/");
+        this._version = res.data.version;
+        this._type = res.data.type;
     }
 }

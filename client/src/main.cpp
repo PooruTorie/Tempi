@@ -98,4 +98,6 @@ void loop() {
             client.publishToSensorTopic("temp", String(sensor.getTempC()));
         }
     }
+
+    delay(1);
 }

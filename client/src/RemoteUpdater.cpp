@@ -6,6 +6,7 @@
 
 void RemoteUpdater::setup(const char *hostname) {
     ArduinoOTA.setHostname(hostname);
+    ArduinoOTA.setPassword(CONFIG_OTA_PASSWORD);
     ArduinoOTA.setRebootOnSuccess(true);
 
     ArduinoOTA.onStart([]() {

@@ -16,6 +16,11 @@ void BrokerClient::handle() {
             }
         }
         client->loop();
+        t++;
+        if (t > CONFIG_KEEP_ALIVE_DELAY) {
+            t = 0;
+            publishToSensorTopic("keepalive", WiFi.localIP().toString());
+        }
     }
 }
 

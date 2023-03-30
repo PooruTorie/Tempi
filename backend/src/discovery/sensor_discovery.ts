@@ -10,7 +10,7 @@ export default class SensorDiscovery {
     public static setup(discoveryPort: number) {
         this.socket = dgram.createSocket("udp4");
 
-        const address: string = ip.address();
+        const address: string = ip.address("WLAN");
 
         console.log("Listening Discovery...")
         this.socket.on("message", (message: Buffer, remote: dgram.RemoteInfo) => {
@@ -26,10 +26,10 @@ export default class SensorDiscovery {
     }
 
     public static startDiscovery(discoveryPort: number) {
-        const netInterface = ip.networkInterface();
+        const netInterface = ip.networkInterface("WLAN");
         const broadcastAddress: string = ip.subnet(netInterface.address, netInterface.netmask).broadcastAddress;
 
-        console.log("Broadcasting Discovery Hello");
+        console.log("Broadcasting Discovery Hello on", broadcastAddress);
         this.socket.setBroadcast(true);
         this.socket.send(SensorDiscovery.helloMessage, 0, SensorDiscovery.helloMessage.length, discoveryPort, broadcastAddress);
     }

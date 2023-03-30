@@ -7,7 +7,8 @@
     "body-parser": "^1.20.2",
     "ip": "github:rianwouters/node-ip",
     "mqtt": "^4.3.7",
-    "mysql2": "^3.2.0"
+    "mysql2": "^3.2.0",
+    "axios": "^1.3.4"
   },
   "scripts": {
     "start": "npx ts-node --project tsconfig.json src/index.ts"

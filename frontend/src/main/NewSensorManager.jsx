@@ -1,6 +1,6 @@
 import {Component} from "react";
 import {Button, Card, Metric, Table, TableBody, TableHead, TableHeaderCell, TableRow, TextInput} from "@tremor/react";
-import {getNewSensorUUIDs, setSensorName} from "../api/NewSensor";
+import {getNewSensorUUIDs, setSensorName} from "../api/Sensor";
 
 class AddNewSensor extends Component {
 
@@ -16,22 +16,21 @@ class AddNewSensor extends Component {
                 <TableHeaderCell>
                     <TextInput error={this.state.error !== null} errorMessage={this.state.error}
                                value={this.state.name} placeholder="Name"
-                               onChange={event => this.setState({name: event.target.value.trim()})}/>
+                               onChange={event => this.setState({name: event.target.value})}/>
                 </TableHeaderCell>
                 <TableHeaderCell>
                     <Button loading={this.state.loading}
                             onClick={() => {
-                                if (this.state.name === "") {
-                                    this.setState({error: "The name can not be blank."});
-                                    return;
-                                }
-                                if (this.state.name.length > 20) {
-                                    this.setState({error: "The name is to long max 20 chars."});
-                                    return;
-                                }
                                 this.setState({loading: true});
-                                setSensorName(this.props.uuid, this.state.name)
-                                    .then(() => this.setState({show: false}));
+                                setSensorName(this.props.uuid, this.state.name.trim())
+                                    .then(res => {
+                                        if (res.error) {
+                                            this.setState({loading: false, error: res.error})
+                                        } else {
+                                            this.setState({show: false});
+                                            this.props.onRemove();
+                                        }
+                                    });
                             }}>
                         Register
                     </Button>
@@ -51,13 +50,15 @@ export default class NewSensorManager extends Component {
 
 
     componentDidMount() {
-        const getNewSensors = () => getNewSensorUUIDs().then(sensors => this.setState({sensors}));
-        this.timer = setInterval(getNewSensors, 5000);
-        getNewSensors();
+        getNewSensorUUIDs().then(sensors => this.setState({sensors}));
+        this.eventSource = new EventSource("/api/realtime");
+        this.eventSource.addEventListener("new",
+            e => this.setState({sensors: [...this.state.sensors, e.data]})
+        );
     }
 
     componentWillUnmount() {
-        clearInterval(this.timer);
+        this.eventSource.close();
     }
 
     render() {
@@ -73,7 +74,9 @@ export default class NewSensorManager extends Component {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {this.state.sensors.map(uuid => <AddNewSensor uuid={uuid}/>)}
+                        {this.state.sensors.map(uuid => <AddNewSensor key={uuid} uuid={uuid} onRemove={() => {
+                            this.setState({sensors: this.state.sensors.filter(v => v !== uuid)});
+                        }}/>)}
                     </TableBody>
                 </Table>
             </Card>

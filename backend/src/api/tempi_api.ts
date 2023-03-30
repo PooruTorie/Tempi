@@ -5,6 +5,7 @@ import DataBase from "../db/db_connection";
 import SensorRouter from "./routes/sensor";
 import SensorDiscovery from "../discovery/sensor_discovery";
 import * as bodyParser from "body-parser";
+import RealtimeRouter from "./routes/realtime";
 
 export default class TempiAPI {
     public database: DataBase;
@@ -29,6 +30,7 @@ export default class TempiAPI {
             res.json({success: true});
         });
         this.app.use("/api" + SensorRouter.route, new SensorRouter(this).get());
+        this.app.use("/api" + RealtimeRouter.route, new RealtimeRouter(this).get());
     }
 
     serve() {

@@ -13,9 +13,12 @@ export default class SensorRouter {
         });
 
         this.router.put("/known", async (req, res) => {
-            console.log(req.body);
             if (!["uuid", "name"].every((val) => Object.keys(req.body).includes(val))) {
                 res.json({error: "Not all parameter fulfilled."})
+                return;
+            }
+            if (req.body.name === "") {
+                res.json({error: "The Name can not be blank."})
                 return;
             }
             if (req.body.name.length > 20) {
@@ -28,6 +31,10 @@ export default class SensorRouter {
             }
             api.database.setName(req.body.uuid, req.body.name);
             res.json({success: "Changed Name."})
+        });
+
+        this.router.get("/known", async (req, res) => {
+            res.json(await api.database.getConnectedSensors());
         });
     }
 

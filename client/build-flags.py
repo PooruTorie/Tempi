@@ -6,7 +6,7 @@ with open("config.json", encoding="UTF8") as config:
     config = json.load(config)
     for key in config:
         value = config[key]
-        if not value.isnumeric():
+        if type(value) == str and not value.isnumeric():
             value = "\\\"" + value + "\\\""
         env.Append(BUILD_FLAGS=["-DCONFIG_%s=%s" % (key.upper(), value)])
 

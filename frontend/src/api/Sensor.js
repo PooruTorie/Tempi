@@ -11,3 +11,8 @@ export async function setSensorName(uuid: string, name: string) {
     });
     return await res.json();
 }
+
+export async function getSensors() {
+    const res = await fetch("/api/sensor/known");
+    return await res.json();
+}

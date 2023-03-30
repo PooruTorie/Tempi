@@ -13,6 +13,7 @@ private:
     const char *ip = "";
     MQTTClient *client;
     WiFiClient net;
+    int t = 0;
 
 public:
     bool isReady = false;
