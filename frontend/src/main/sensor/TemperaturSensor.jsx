@@ -15,7 +15,7 @@ export default class TemperaturSensor extends Component {
                 alignItems="baseline"
                 className="space-x-1"
             >
-                <Metric>{this.props.sensor.temp}</Metric>
+                <Metric>{this.props.data.temp}</Metric>
                 <Text>°C</Text>
             </Flex>
             <CategoryBar
@@ -23,7 +23,7 @@ export default class TemperaturSensor extends Component {
                 showLabels={false}
                 showAnimation={true}
                 colors={["blue", "green", "yellow", "orange", "red"]}
-                percentageValue={remap(this.props.sensor.temp, -10, 50, 0, 100)}
+                percentageValue={remap(this.props.data.temp, -10, 50, 0, 100)}
                 className="mt-2"
             />
         </>

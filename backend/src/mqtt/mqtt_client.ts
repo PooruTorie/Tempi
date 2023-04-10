@@ -1,6 +1,7 @@
 import * as mqtt from "mqtt";
 import {EventEmitter} from "events";
 import axios from "axios";
+import {clearInterval} from "timers";
 
 export default class MqttClient extends EventEmitter {
     private connection: mqtt.MqttClient;
@@ -8,6 +9,7 @@ export default class MqttClient extends EventEmitter {
 
     constructor(host: string) {
         super();
+        this.setMaxListeners(50);
         this.connection = mqtt.connect(host, {
             port: 1883,
             clientId: "tempi-backend"
@@ -35,12 +37,21 @@ export default class MqttClient extends EventEmitter {
         this.connection.subscribe(topic);
     }
 
+    unsubscribe(topic: string) {
+        this.connection.unsubscribe(topic);
+    }
+
     private registerNewSensor(data: { uuid: string, ip: string }) {
-        const sensor = new Sensor(this, data.uuid, data.ip);
-        sensor.on("init", () => {
-            this.sensors.push(sensor);
-            this.emit("newSensor", sensor);
-        });
+        if (!this.sensors.find(sensor => sensor.uuid == data.uuid)) {
+            const sensor = new Sensor(this, data.uuid, data.ip, () => {
+                this.sensors.push(sensor);
+                this.emit("newSensor", sensor);
+            });
+            sensor.on("disconnect", () => {
+                this.sensors = this.sensors.filter(s => s.uuid !== sensor.uuid);
+                this.emit("removeSensor", sensor);
+            });
+        }
     }
 }
 
@@ -48,11 +59,13 @@ export class Sensor extends EventEmitter {
     private connection: MqttClient;
     private readonly _topic: string;
     private readonly _uuid: string;
-    private readonly _ip: string;
     private _version: string = "x.x.x";
+    private _alive: number = 10;
+    private readonly _aliveInterval: NodeJS.Timer;
 
-    constructor(connection: MqttClient, uuid: string, ip: string) {
+    constructor(connection: MqttClient, uuid: string, ip: string, initCallback: Function) {
         super();
+        this.setMaxListeners(50);
         this.connection = connection;
         this._topic = "tempi/sensor/" + uuid;
         this._uuid = uuid;
@@ -61,11 +74,31 @@ export class Sensor extends EventEmitter {
         connection.subscribe(this._topic + "/#");
         connection.on("message", (topic, message) => {
             if (topic.startsWith(this._topic)) {
-                this.emit("message", topic, message);
+                if (messageLabel === "keepalive") {
+                    console.log("Sensor Alive", sensor.uuid);
+                    sensor.alive(message.toString());
+                    database.sensorAlive(sensor);
+                } else {
+                    this.emit("message", topic, message);
+                }
             }
         });
+        this.requestConfiguration().then(() => initCallback());
 
-        this.requestConfiguration().then(() => this.emit("init"));
+        this._aliveInterval = setInterval(() => {
+            if (this._alive < 0) {
+                clearInterval(this._aliveInterval);
+                connection.unsubscribe(this._topic + "/#");
+                this.emit("disconnect");
+            }
+            this._alive--;
+        }, 1000);
+    }
+
+    private _ip: string;
+
+    get ip(): string {
+        return this._ip;
     }
 
     private _type: string = "not_detected";
@@ -76,10 +109,6 @@ export class Sensor extends EventEmitter {
 
     get uuid(): string {
         return this._uuid;
-    }
-
-    get ip(): string {
-        return this._ip;
     }
 
     get topic(): string {
@@ -96,6 +125,21 @@ export class Sensor extends EventEmitter {
             ", uuid: " + this._uuid +
             ", topic: " + this._topic +
             "}";
+    }
+
+    alive(ip: string) {
+        this._ip = ip;
+        this._alive = 10;
+    }
+
+    toObject(name: string) {
+        return {
+            uuid: this.uuid,
+            type: this.type,
+            version: this.firmwareVersion,
+            ip: this.ip,
+            name
+        }
     }
 
     private async requestConfiguration() {

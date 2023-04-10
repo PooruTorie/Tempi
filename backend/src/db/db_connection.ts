@@ -15,32 +15,35 @@ export default class DataBase {
         });
     }
 
-    async isKnown(sensor: Sensor): Promise<boolean> {
+    async getName(sensor: Sensor): Promise<string | null> {
         const [rows, fields] = await this.connection.query<RowDataPacket[]>(
-            "SELECT uuid FROM Sensor WHERE uuid=:uuid AND name IS NOT NULL LIMIT 1",
+            "SELECT name FROM Sensor WHERE uuid=:uuid AND name IS NOT NULL LIMIT 1",
             {uuid: sensor.uuid}
         );
-        return rows.length > 0;
+        return rows.length > 0 ? rows[0].name : null;
     }
 
     collectSensorData(sensor: Sensor, messageLabel: string, message: Buffer) {
         this.connection.execute(
-            "INSERT INTO SensorData (sensor, value, label) VALUES (:uuid, :value, :label)",
+            "INSERT IGNORE INTO SensorData (sensor, value, label) VALUES (:uuid, :value, :label)",
             {
                 uuid: sensor.uuid,
                 value: message,
                 label: messageLabel
             }
         );
-        RealtimeRouter.events.emit("send", messageLabel, message);
+        RealtimeRouter.events.emit("send", sensor.uuid, {[messageLabel]: message.toString()});
     }
 
     async connectNewSensor(sensor: Sensor) {
-        if (await this.isKnown(sensor)) {
+        const name = await this.getName(sensor);
+        if (name) {
+            RealtimeRouter.events.emit("send", "connect", sensor.toObject(name))
             this.connection.execute(
                 "UPDATE Sensor SET connected=:ip, version=:version, type=:type, lastConnect=CURRENT_TIMESTAMP() WHERE uuid=:uuid",
                 {
-                    uuid: sensor.uuid, ip: sensor.ip,
+                    uuid: sensor.uuid,
+                    ip: sensor.ip,
                     type: sensor.type,
                     version: sensor.firmwareVersion
                 }
@@ -88,6 +91,44 @@ export default class DataBase {
             "SELECT * FROM Sensor WHERE name IS NOT NULL AND connected IS NOT NULL"
         );
         return rows;
+    }
+
+    async getSingleSensorData(uuid: string) {
+        const [rows, fields] = await this.connection.query<RowDataPacket[]>(
+            "SELECT timestamp, value, label FROM (SELECT timestamp, value, label, ROW_NUMBER() OVER(PARTITION BY label ORDER BY timestamp DESC) rn FROM SensorData WHERE sensor=:uuid AND label NOT LIKE :alive) a WHERE rn=1;",
+            {uuid, alive: "keepalive"}
+        );
+        let data = {};
+        rows.forEach(row => {
+            data[row.label] = row.value.toString();
+        });
+        return data;
+    }
+
+    async sensorAlive(sensor: Sensor) {
+        await this.connection.execute("UPDATE Sensor SET connected=:ip WHERE uuid=:uuid",
+            {
+                uuid: sensor.uuid,
+                ip: sensor.ip
+            }
+        );
+    }
+
+    async allSensorsDead() {
+        await this.connection.execute("UPDATE Sensor SET connected=NULL");
+    }
+
+    async getSensorData(uuid: string, label: string) {
+        const [rows, fields] = await this.connection.query<RowDataPacket[]>(
+            "SELECT timestamp, value FROM SensorData WHERE sensor=:uuid AND label LIKE :label;",
+            {uuid, label}
+        );
+        return rows;
+    }
+
+    async sensorDead(sensor: Sensor) {
+        await this.connection.execute("UPDATE Sensor SET connected=NULL WHERE uuid=:uuid",
+            {uuid: sensor.uuid});
     }
 
     private async isNew(sensor: Sensor) {

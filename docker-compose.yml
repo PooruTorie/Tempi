@@ -5,7 +5,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "80:3000"
+      - "80:80"
   backend:
     build: backend
     depends_on:
@@ -13,6 +13,8 @@ services:
       - broker
     ports:
       - "3000:3000"
+    env_file:
+      - "backend/.env"
   db:
     image: mysql
     environment:

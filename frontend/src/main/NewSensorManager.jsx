@@ -76,6 +76,7 @@ export default class NewSensorManager extends Component {
                     <TableBody>
                         {this.state.sensors.map(uuid => <AddNewSensor key={uuid} uuid={uuid} onRemove={() => {
                             this.setState({sensors: this.state.sensors.filter(v => v !== uuid)});
+                            this.props.onUpdate();
                         }}/>)}
                     </TableBody>
                 </Table>

@@ -36,6 +36,14 @@ export default class SensorRouter {
         this.router.get("/known", async (req, res) => {
             res.json(await api.database.getConnectedSensors());
         });
+
+        this.router.get("/:uuid", async (req, res) => {
+            res.json(await api.database.getSingleSensorData(req.params.uuid));
+        });
+
+        this.router.get("/:uuid/:label", async (req, res) => {
+            res.json(await api.database.getSensorData(req.params.uuid, req.params.label));
+        });
     }
 
     get() {

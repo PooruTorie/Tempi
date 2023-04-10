@@ -93,7 +93,10 @@ void loop() {
 
             sensor.requestTemperatures();
 
-            while (!sensor.isConversionComplete());
+            int tt = 0;
+            while (!sensor.isConversionComplete() && tt < 1000) {
+                tt++;
+            }
 
             client.publishToSensorTopic("temp", String(sensor.getTempC()));
         }

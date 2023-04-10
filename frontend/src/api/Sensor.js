@@ -16,3 +16,13 @@ export async function getSensors() {
     const res = await fetch("/api/sensor/known");
     return await res.json();
 }
+
+export async function getSensorData(uuid: string) {
+    const res = await fetch("/api/sensor/" + uuid);
+    return await res.json();
+}
+
+export async function getSensorDataTimeline(uuid: string, label: string) {
+    const res = await fetch("/api/sensor/" + uuid + "/" + label);
+    return await res.json();
+}

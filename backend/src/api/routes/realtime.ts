@@ -16,9 +16,20 @@ export default class RealtimeRouter {
                 "Content-Type": "text/event-stream",
                 "Cache-Control": "no-cache",
             });
+
+            function eventSend(label: String, data) {
+                res.write("event:" + label + "\n");
+                if (data instanceof Object) {
+                    data = JSON.stringify(data);
+                }
+                res.write("data:" + data + "\n\n");
+            }
+
             res.write("init\n\n");
-            RealtimeRouter.events.on("send", (label, data) => {
-                res.write("event:" + label + "\ndata:" + data + "\n\n");
+            RealtimeRouter.events.on("send", eventSend);
+            res.on("close", () => {
+                RealtimeRouter.events.removeListener("send", eventSend);
+                res.end();
             });
         });
     }
