@@ -12,10 +12,24 @@ export default class MqttDataWorker {
 
         mqtt.on("newSensor", (sensor: Sensor) => {
             console.log("New Sensor:", sensor.toString());
-            database.connectNewSensor(sensor);
+            database.connectNewSensor(sensor).then(value => {
+                if (value) {
+                    if (value === "new") {
+                        RealtimeRouter.events.emit("send", "new", sensor.uuid);
+                    } else {
+                        RealtimeRouter.events.emit("send", "connect", sensor.toObject(value))
+                    }
+                }
+            });
 
             sensor.on("message", (topic: string, messageLabel: string, message: Buffer) => {
                 database.collectSensorData(sensor, messageLabel, message);
+                RealtimeRouter.events.emit("send", sensor.uuid, {[messageLabel]: message.toString()});
+            });
+
+            sensor.on("alive", () => {
+                console.log("Sensor Alive", sensor.uuid);
+                database.sensorAlive(sensor);
             });
         });
 

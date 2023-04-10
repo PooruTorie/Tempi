@@ -3,7 +3,8 @@ FROM node:19
 RUN apt-get -y update
 RUN apt-get -y upgrade
 
-COPY . /app
+COPY serve /app
+COPY build /app/build
 
 WORKDIR /app
 

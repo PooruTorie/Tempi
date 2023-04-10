@@ -74,12 +74,11 @@ export class Sensor extends EventEmitter {
         connection.subscribe(this._topic + "/#");
         connection.on("message", (topic, message) => {
             if (topic.startsWith(this._topic)) {
+                const messageLabel = topic.replace(this._topic, "");
                 if (messageLabel === "keepalive") {
-                    console.log("Sensor Alive", sensor.uuid);
-                    sensor.alive(message.toString());
-                    database.sensorAlive(sensor);
+                    this.alive(message.toString());
                 } else {
-                    this.emit("message", topic, message);
+                    this.emit("message", topic, messageLabel, message);
                 }
             }
         });
@@ -130,6 +129,7 @@ export class Sensor extends EventEmitter {
     alive(ip: string) {
         this._ip = ip;
         this._alive = 10;
+        this.emit("alive");
     }
 
     toObject(name: string) {

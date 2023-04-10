@@ -5,14 +5,12 @@ services:
     depends_on:
       - backend
     ports:
-      - "80:80"
+      - "80:3000"
   backend:
     build: backend
     depends_on:
       - db
       - broker
-    ports:
-      - "3000:3000"
     env_file:
       - "backend/.env"
   db:
@@ -27,7 +25,6 @@ services:
     image: eclipse-mosquitto
     ports:
       - "1883:1883"
-      - "9001:9001"
     volumes:
       - "./broker/mosquitto.conf:/mosquitto/config/mosquitto.conf"
       - "./broker/password_file:/mosquitto/password_file"

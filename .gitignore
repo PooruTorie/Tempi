@@ -15,6 +15,10 @@ frontend/node_modules
 frontend/.idea
 frontend/package-lock.json
 
+frontend/serve/node_modules
+frontend/serve/.idea
+frontend/serve/package-lock.json
+
 client/.idea
 client/.pio
 client/CMakeListsPrivate.txt

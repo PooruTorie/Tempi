@@ -1,6 +1,5 @@
 import {createPool, Pool, RowDataPacket} from "mysql2/promise";
 import {Sensor} from "../mqtt/mqtt_client";
-import RealtimeRouter from "../api/routes/realtime";
 
 export default class DataBase {
     private connection: Pool;
@@ -32,13 +31,11 @@ export default class DataBase {
                 label: messageLabel
             }
         );
-        RealtimeRouter.events.emit("send", sensor.uuid, {[messageLabel]: message.toString()});
     }
 
     async connectNewSensor(sensor: Sensor) {
         const name = await this.getName(sensor);
         if (name) {
-            RealtimeRouter.events.emit("send", "connect", sensor.toObject(name))
             this.connection.execute(
                 "UPDATE Sensor SET connected=:ip, version=:version, type=:type, lastConnect=CURRENT_TIMESTAMP() WHERE uuid=:uuid",
                 {
@@ -48,9 +45,9 @@ export default class DataBase {
                     version: sensor.firmwareVersion
                 }
             );
+            return name;
         } else {
             if (await this.isNew(sensor)) {
-                RealtimeRouter.events.emit("send", "new", sensor.uuid);
                 this.connection.execute(
                     "INSERT INTO Sensor (uuid, connected, version, type) VALUES (:uuid, :ip, :version, :type)",
                     {
@@ -60,8 +57,10 @@ export default class DataBase {
                         version: sensor.firmwareVersion
                     }
                 );
+                return "new";
             }
         }
+        return null;
     }
 
     async getNewSensors(): Promise<string[]> {
