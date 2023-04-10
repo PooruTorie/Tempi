@@ -91,6 +91,7 @@ void loop() {
         if (t > pullSpeed) {
             t = 0;
 
+#ifndef CONFIG_DEBUG_DATA
             sensor.requestTemperatures();
 
             int tt = 0;
@@ -99,6 +100,9 @@ void loop() {
             }
 
             client.publishToSensorTopic("temp", String(sensor.getTempC()));
+#else
+            client.publishToSensorTopic("temp", String(random(-20, 50)));
+#endif
         }
     }
 

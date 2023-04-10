@@ -8,6 +8,11 @@ with open("config.json", encoding="UTF8") as config:
         value = config[key]
         if type(value) == str and not value.isnumeric():
             value = "\\\"" + value + "\\\""
+        if type(value) == bool:
+            if value:
+                value = "1"
+            else:
+                continue
         env.Append(BUILD_FLAGS=["-DCONFIG_%s=%s" % (key.upper(), value)])
 
 version = env.GetProjectOption("version")

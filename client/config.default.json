@@ -3,6 +3,7 @@
   "discover_port": 12666,
   "keep_alive_delay": 10000,
   "device_type": "temperature",
+  "debug_data": false,
   "ssid": "nice_wlan",
   "password": "devel",
   "ota_password": "admin"
