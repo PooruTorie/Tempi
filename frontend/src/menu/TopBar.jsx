@@ -1,9 +1,16 @@
 import {Component} from "react";
-import {Card, Col, Grid, TextInput} from "@tremor/react";
+import {Button, Card, Col, Grid} from "@tremor/react";
 import {SearchIcon} from "@heroicons/react/solid";
 import logo from "../assets/logo.png";
+import {discover} from "../api/Sensor";
 
 export default class TopBar extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {discover: false};
+    }
+
 
     render() {
         return <Card className="h-[10%]">
@@ -14,7 +21,12 @@ export default class TopBar extends Component {
                     </div>
                 </Col>
                 <Col numColSpan={9}>
-                    <TextInput icon={SearchIcon} placeholder="Search..."/>
+                    <Button loading={this.state.discover} icon={SearchIcon} onClick={() => {
+                        this.setState({discover: true});
+                        discover().then(() => {
+                            this.setState({discover: false});
+                        });
+                    }}>Discover New Devices</Button>
                 </Col>
             </Grid>
         </Card>

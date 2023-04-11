@@ -29,7 +29,7 @@ export default class SensorRouter {
                 res.json({error: "UUID is not valide."})
                 return;
             }
-            api.database.setName(req.body.uuid, req.body.name);
+            await api.database.setName(req.body.uuid, req.body.name);
             res.json({success: "Changed Name."})
         });
 
@@ -42,7 +42,11 @@ export default class SensorRouter {
         });
 
         this.router.get("/:uuid/:label", async (req, res) => {
-            res.json(await api.database.getSensorData(req.params.uuid, req.params.label));
+            const rawData = await api.database.getSensorData(req.params.uuid, req.params.label);
+            res.json(rawData.map(rawDataObject => {
+                rawDataObject.value = rawDataObject.value.toString();
+                return rawDataObject;
+            }));
         });
     }
 

@@ -74,7 +74,7 @@ export class Sensor extends EventEmitter {
         connection.subscribe(this._topic + "/#");
         connection.on("message", (topic, message) => {
             if (topic.startsWith(this._topic)) {
-                const messageLabel = topic.replace(this._topic, "");
+                const messageLabel = topic.replace(this._topic + "/", "");
                 if (messageLabel === "keepalive") {
                     this.alive(message.toString());
                 } else {

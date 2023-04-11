@@ -26,3 +26,7 @@ export async function getSensorDataTimeline(uuid: string, label: string) {
     const res = await fetch("/api/sensor/" + uuid + "/" + label);
     return await res.json();
 }
+
+export async function discover() {
+    await fetch("/api/discover");
+}

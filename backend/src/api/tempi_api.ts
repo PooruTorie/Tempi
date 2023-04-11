@@ -26,8 +26,7 @@ export default class TempiAPI {
         SensorDiscovery.setup(discoveryPort);
 
         this.app.get("/api/discover", async (req, res) => {
-            await SensorDiscovery.startDiscovery(discoveryPort);
-            res.json({success: true});
+            res.json(await SensorDiscovery.startDiscovery(discoveryPort));
         });
         this.app.use("/api" + SensorRouter.route, new SensorRouter(this).get());
         this.app.use("/api" + RealtimeRouter.route, new RealtimeRouter(this).get());

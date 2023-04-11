@@ -13,6 +13,8 @@ services:
       - broker
     env_file:
       - "backend/.env"
+    ports:
+      - "12666:12666/udp"
   db:
     image: mysql
     environment:
@@ -20,7 +22,7 @@ services:
     volumes:
       - "./db/data:/var/lib/mysql"
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
   broker:
     image: eclipse-mosquitto
     ports:
@@ -35,6 +37,6 @@ services:
     depends_on:
       - broker
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"
     volumes:
       - "./broker/explorer:/mqtt-explorer/config"

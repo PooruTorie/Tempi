@@ -22,8 +22,8 @@ export default class DataBase {
         return rows.length > 0 ? rows[0].name : null;
     }
 
-    collectSensorData(sensor: Sensor, messageLabel: string, message: Buffer) {
-        this.connection.execute(
+    async collectSensorData(sensor: Sensor, messageLabel: string, message: Buffer) {
+        await this.connection.execute(
             "INSERT IGNORE INTO SensorData (sensor, value, label) VALUES (:uuid, :value, :label)",
             {
                 uuid: sensor.uuid,
@@ -70,8 +70,8 @@ export default class DataBase {
         return rows.map(value => value.uuid);
     }
 
-    setName(uuid: string, name: string) {
-        this.connection.execute(
+    async setName(uuid: string, name: string) {
+        await this.connection.execute(
             "UPDATE Sensor SET name=:name WHERE uuid=:uuid",
             {uuid, name}
         );

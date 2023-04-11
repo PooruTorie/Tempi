@@ -6,6 +6,7 @@
 #define CLIENT_DISCOVERY_H
 
 #include "Arduino.h"
+#include "WiFi.h"
 #include "AsyncUDP.h"
 
 class Discovery {

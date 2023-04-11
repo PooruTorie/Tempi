@@ -1,7 +1,7 @@
 {
   "mqtt_port": 1883,
   "discover_port": 12666,
-  "keep_alive_delay": 10000,
+  "keep_alive_delay": 3000,
   "device_type": "temperature",
   "debug_data": false,
   "ssid": "nice_wlan",

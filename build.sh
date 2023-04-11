@@ -11,10 +11,10 @@ node env_collector.js || wait_exit
 cd ..
 
 cd frontend || wait_exit
-npm run build
+npm run build || wait_exit
 cd ..
 
-docker-compose build
+docker-compose build || wait_exit
 
 echo "Build Complete"
 wait_exit
