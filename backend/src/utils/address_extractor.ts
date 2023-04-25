@@ -1,4 +1,5 @@
 import * as ip from "ip";
+import {Logger} from "./logger";
 
 export class AddressExtractor {
     public static address: string | undefined;
@@ -9,18 +10,18 @@ export class AddressExtractor {
         let netmask = process.env.NETMASK;
 
         if (!this.address) {
-            console.error("No ip address in envs");
+            Logger.fatal("No ip address in envs");
             return false;
         }
 
         if (!netmask) {
-            console.error("No netmask in envs");
+            Logger.fatal("No netmask in envs");
             return false;
         }
 
         this.broadcast = ip.subnet(this.address, netmask).broadcastAddress;
 
-        console.log("Address Extractor made", this.address, this.broadcast);
+        Logger.debug("Address Extractor made:", this.address, this.broadcast);
 
         return true;
     }

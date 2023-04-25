@@ -1,6 +1,7 @@
 import MqttClient, {Sensor} from "./mqtt_client";
 import DataBase from "../db/db_connection";
 import RealtimeRouter from "../api/routes/realtime";
+import {Logger} from "../utils/logger";
 
 export default class MqttDataWorker {
     private mqtt: MqttClient;
@@ -11,7 +12,7 @@ export default class MqttDataWorker {
         this.database = database;
 
         mqtt.on("newSensor", (sensor: Sensor) => {
-            console.log("New Sensor:", sensor.toString());
+            Logger.info("New Sensor:", sensor.toString());
             database.connectNewSensor(sensor).then(value => {
                 if (value) {
                     if (value === "new") {
@@ -28,14 +29,14 @@ export default class MqttDataWorker {
             });
 
             sensor.on("alive", () => {
-                console.log("Sensor Alive", sensor.uuid);
+                Logger.debug("Sensor Alive", sensor.uuid);
                 database.sensorAlive(sensor);
             });
         });
 
         mqtt.on("removeSensor", (sensor: Sensor) => {
             database.sensorDead(sensor);
-            console.log("Sensor Dead", sensor.uuid);
+            Logger.info("Sensor Dead", sensor.uuid);
             RealtimeRouter.events.emit("send", "disconnect", sensor.uuid);
         });
     }

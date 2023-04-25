@@ -6,6 +6,8 @@ import SensorRouter from "./routes/sensor";
 import SensorDiscovery from "../discovery/sensor_discovery";
 import * as bodyParser from "body-parser";
 import RealtimeRouter from "./routes/realtime";
+import {Logger} from "../utils/logger";
+import * as log4js from "log4js";
 
 export default class TempiAPI {
     public database: DataBase;
@@ -23,6 +25,9 @@ export default class TempiAPI {
         // parse application/json
         this.app.use(bodyParser.json())
 
+        // add logger
+        this.app.use(log4js.connectLogger(log4js.getLogger("api"), {level: "debug"}));
+
         SensorDiscovery.setup(discoveryPort);
 
         this.app.get("/api/discover", async (req, res) => {
@@ -34,7 +39,7 @@ export default class TempiAPI {
 
     serve() {
         this.app.listen(this.port, () => {
-            console.log("Backend running on port: " + this.port);
+            Logger.info("Backend running on port: " + this.port);
         });
     }
 }

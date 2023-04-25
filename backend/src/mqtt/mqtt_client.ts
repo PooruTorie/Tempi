@@ -2,6 +2,7 @@ import * as mqtt from "mqtt";
 import {EventEmitter} from "events";
 import axios from "axios";
 import {clearInterval} from "timers";
+import {Logger} from "../utils/logger";
 
 export default class MqttClient extends EventEmitter {
     private connection: mqtt.MqttClient;
@@ -15,7 +16,7 @@ export default class MqttClient extends EventEmitter {
             clientId: "tempi-backend"
         });
         this.connection.on("error", (error) => {
-            console.log("Can't connect" + error);
+            Logger.fatal("Can't connect" + error);
         });
         this.connection.on("connect", () => {
             this.connection.subscribe("tempi/device");
@@ -119,7 +120,7 @@ export class Sensor extends EventEmitter {
     }
 
     toString() {
-        return "Sensor{" +
+        return "Sensor {" +
             "ip: " + this._ip +
             ", uuid: " + this._uuid +
             ", topic: " + this._topic +
@@ -146,5 +147,6 @@ export class Sensor extends EventEmitter {
         const res = await axios.get("http://" + this._ip + "/");
         this._version = res.data.version;
         this._type = res.data.type;
+        Logger.debug("Request Configuration", this.toString());
     }
 }
