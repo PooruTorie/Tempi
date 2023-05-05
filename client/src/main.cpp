@@ -9,17 +9,21 @@
 #include "BrokerClient.h"
 #include "Discovery.h"
 
-#include "DS18B20.h"
-
-#define SENSOR_PIN 18
-
 WiFiClient net;
 BrokerClient client(net);
 API api(&client);
 Discovery discovery;
 
+#if CONFIG_DEVICE_TYPE == 1
+#include "DS18B20.h"
+
+#define SENSOR_PIN 18
+
 OneWire oneWire(SENSOR_PIN);
 DS18B20 sensor(&oneWire);
+#elif CONFIG_DEVICE_TYPE == 2
+#define SENSOR_PIN 19
+#endif
 
 int pullSpeed = 5000;
 
@@ -69,14 +73,18 @@ void setup() {
 
     discovery.setup();
 
-    RemoteUpdater::setup((String("Tempi ") + CONFIG_DEVICE_TYPE).c_str());
+    RemoteUpdater::setup((String("Tempi ") + CONFIG_DEVICE_TYPE_NAME).c_str());
 
     api.get("/broker", setBroker);
     api.get("/settings", setSettings);
 
     api.begin();
 
+#if CONFIG_DEVICE_TYPE == 1
     sensor.begin();
+#elif CONFIG_DEVICE_TYPE == 2
+    pinMode(SENSOR_PIN, INPUT);
+#endif
 }
 
 int t = 0;
@@ -90,8 +98,8 @@ void loop() {
         t++;
         if (t > pullSpeed) {
             t = 0;
-
-#ifndef CONFIG_DEBUG_DATA
+#if CONFIG_DEVICE_TYPE == 1
+            #ifndef CONFIG_DEBUG_DATA
             sensor.requestTemperatures();
 
             int tt = 0;
@@ -102,6 +110,15 @@ void loop() {
             client.publishToSensorTopic("temp", String(sensor.getTempC()));
 #else
             client.publishToSensorTopic("temp", String(random(-20, 50)));
+#endif
+#elif CONFIG_DEVICE_TYPE == 2
+            #ifndef CONFIG_DEBUG_DATA
+            int lightValue = analogRead(SENSOR_PIN);
+
+            client.publishToSensorTopic("light", String(lightValue));
+#else
+            client.publishToSensorTopic("light", String(random(0, 4000)));
+#endif
 #endif
         }
     }

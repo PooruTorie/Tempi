@@ -1,8 +1,9 @@
 import {Component} from "react";
 import {Button, Card, Col} from "@tremor/react";
-import TemperaturSensor from "./TemperaturSensor";
 import {getSensorData} from "../../api/Sensor";
 import {CogIcon} from "@heroicons/react/solid";
+import TemperatureSensor from "./TemperatureSensor";
+import DebugSensor from "./DebugSensor";
 
 export default class SensorCard extends Component {
 
@@ -16,7 +17,10 @@ export default class SensorCard extends Component {
         getSensorData(this.props.sensor.uuid).then(data => this.setState({data}));
         this.eventSource = new EventSource("/api/realtime");
         this.eventSource.addEventListener(this.props.sensor.uuid,
-            e => this.setState({data: JSON.parse(e.data)})
+            e => {
+                const data = JSON.parse(e.data);
+                this.setState({data});
+            }
         );
     }
 
@@ -28,15 +32,18 @@ export default class SensorCard extends Component {
         return <Col>
             <Card className="max-w-lg">
                 {(() => {
+                    const overviewButton = <Button icon={CogIcon} onClick={() => {
+                        this.props.doSelect();
+                    }}>Overview</Button>;
                     switch (this.props.sensor.type) {
                         case "temperature":
-                            return <TemperaturSensor sensor={this.props.sensor} data={this.state.data}>
-                                <Button icon={CogIcon} onClick={() => {
-                                    console.log(this.props.sensor);
-                                }}>Settings</Button>
-                            </TemperaturSensor>
+                            return <TemperatureSensor sensor={this.props.sensor} data={this.state.data}>
+                                {overviewButton}
+                            </TemperatureSensor>
                         default:
-                            return <></>
+                            return <DebugSensor sensor={this.props.sensor} data={this.state.data}>
+                                {overviewButton}
+                            </DebugSensor>
                     }
                 })()}
             </Card>

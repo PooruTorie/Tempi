@@ -14,7 +14,7 @@ API::API(BrokerClient *client) : client(client), server(new AsyncWebServer(80)) 
         DynamicJsonDocument configJSON(1024);
         configJSON["uuid"] = API::uuid;
         configJSON["version"] = CONFIG_VERSION;
-        configJSON["type"] = CONFIG_DEVICE_TYPE;
+        configJSON["type"] = CONFIG_DEVICE_TYPE_NAME;
         configJSON["connected"] = API::client->isReady;
 
         String json;

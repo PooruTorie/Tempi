@@ -2,7 +2,11 @@ import {Component} from "react";
 import {CategoryBar, Flex, Metric, Text} from "@tremor/react";
 import {remap} from "../../utils/MathUtils";
 
-export default class TemperaturSensor extends Component {
+export default class TemperatureSensor extends Component {
+
+    dataFormatter(number: number) {
+        return `${Intl.NumberFormat("de").format(number).toString()} °C`;
+    }
 
     render() {
         return <>

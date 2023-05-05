@@ -15,8 +15,8 @@ if (AddressExtractor.extract()) {
         Logger.error("Caught exception:", err);
     });
 
-    const mqtt = new MqttClient("mqtt://127.0.0.1");
-    const database = new DataBase("mysql://root@127.0.0.1", "secret");
+    const mqtt = new MqttClient("mqtt://host.docker.internal");
+    const database = new DataBase("mysql://root@host.docker.internal", "secret");
     const dataWorker = new MqttDataWorker(mqtt, database);
     const api = new TempiAPI(3000, database, 12666);
     api.serve();

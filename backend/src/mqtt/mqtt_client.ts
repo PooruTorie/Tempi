@@ -129,7 +129,7 @@ export class Sensor extends EventEmitter {
 
     alive(ip: string) {
         this._ip = ip;
-        this._alive = 10;
+        this._alive = 20;
         this.emit("alive");
     }
 

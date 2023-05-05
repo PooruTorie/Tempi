@@ -3,12 +3,13 @@ import {Col, Grid, Metric, Text} from "@tremor/react";
 import NewSensorManager from "./NewSensorManager";
 import SensorCard from "./sensor/SensorCard";
 import {getSensors} from "../api/Sensor";
+import OverviewContentPanel from "./overview/OverviewContentPanel";
 
 export default class MainContentPanel extends Component {
 
     constructor(props) {
         super(props);
-        this.state = {sensors: []};
+        this.state = {sensors: [], selectedSensor: null};
     }
 
     componentDidMount() {
@@ -29,15 +30,23 @@ export default class MainContentPanel extends Component {
     render() {
         return <Col numColSpan={5} className="h-[101%] overflow-auto">
             <div className="w-full border-none h-max p-4 border-x border-gray-200">
-                <NewSensorManager onUpdate={() => {
-                    getSensors().then(sensors => this.setState({sensors}));
-                }}/>
-                <Metric>Dashboard</Metric>
-                <Text>Sales and growth stats for anonymous inc.</Text>
+                <NewSensorManager onUpdate={() => getSensors().then(sensors => this.setState({sensors}))}/>
+                {this.state.selectedSensor ? <OverviewContentPanel
+                    sensor={this.state.selectedSensor}
+                    onClose={() => this.setState({selectedSensor: null})}
+                /> : <>
+                    <Metric>Dashboard</Metric>
+                    <Text>All Sensors</Text>
 
-                <Grid className="mt-6" numCols={this.state.sensors.length}>
-                    {this.state.sensors.map(sensor => <SensorCard sensor={sensor}/>)}
-                </Grid>
+                    <Grid className="mt-6" numCols={this.state.sensors.length}>
+                        {this.state.sensors.map(sensor =>
+                            <SensorCard
+                                sensor={sensor}
+                                doSelect={() => this.setState({selectedSensor: sensor})}
+                            />)
+                        }
+                    </Grid>
+                </>}
             </div>
         </Col>
     }
