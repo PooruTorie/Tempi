@@ -1,6 +1,6 @@
 import {Component} from "react";
 import {Button, Card, Metric, Table, TableBody, TableHead, TableHeaderCell, TableRow, TextInput} from "@tremor/react";
-import {getNewSensorUUIDs, setSensorName} from "../api/Sensor";
+import {getNewSensorUUIDs, setSensorName} from "../api/api";
 
 class AddNewSensor extends Component {
 

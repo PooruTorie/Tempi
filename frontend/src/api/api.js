@@ -22,6 +22,11 @@ export async function getSensorData(uuid: string) {
     return await res.json();
 }
 
+export async function getSensorSettings(uuid: string) {
+    const res = await fetch("/api/sensor/" + uuid + "/settings");
+    return await res.json();
+}
+
 export async function getSensorDataTimeline(uuid: string, label: string) {
     const res = await fetch("/api/sensor/" + uuid + "/" + label);
     return await res.json();
@@ -29,4 +34,14 @@ export async function getSensorDataTimeline(uuid: string, label: string) {
 
 export async function discover() {
     await fetch("/api/discover");
+}
+
+export async function getNewestVersion(type: string) {
+    const res = await fetch("/api/updates/newest/" + type);
+    return await res.json();
+}
+
+export async function updateSensor(uuid: string) {
+    const res = await fetch("/api/updates/update/" + uuid);
+    return await res.json();
 }

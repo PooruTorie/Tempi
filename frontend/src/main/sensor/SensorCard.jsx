@@ -1,9 +1,10 @@
 import {Component} from "react";
 import {Button, Card, Col} from "@tremor/react";
-import {getSensorData} from "../../api/Sensor";
+import {getSensorData} from "../../api/api";
 import {CogIcon} from "@heroicons/react/solid";
 import TemperatureSensor from "./TemperatureSensor";
 import DebugSensor from "./DebugSensor";
+import LightSensor from "./LightSensor";
 
 export default class SensorCard extends Component {
 
@@ -40,6 +41,10 @@ export default class SensorCard extends Component {
                             return <TemperatureSensor sensor={this.props.sensor} data={this.state.data}>
                                 {overviewButton}
                             </TemperatureSensor>
+                        case "light":
+                            return <LightSensor sensor={this.props.sensor} data={this.state.data}>
+                                {overviewButton}
+                            </LightSensor>
                         default:
                             return <DebugSensor sensor={this.props.sensor} data={this.state.data}>
                                 {overviewButton}

@@ -1,8 +1,8 @@
 import * as mqtt from "mqtt";
 import {EventEmitter} from "events";
 import axios from "axios";
-import {clearInterval} from "timers";
 import {Logger} from "../utils/logger";
+import {clearInterval} from "timers";
 
 export default class MqttClient extends EventEmitter {
     private connection: mqtt.MqttClient;
@@ -45,9 +45,9 @@ export default class MqttClient extends EventEmitter {
     private registerNewSensor(data: { uuid: string, ip: string }) {
         if (!this.sensors.find(sensor => sensor.uuid == data.uuid)) {
             const sensor = new Sensor(this, data.uuid, data.ip, () => {
-                this.sensors.push(sensor);
                 this.emit("newSensor", sensor);
             });
+            this.sensors.push(sensor);
             sensor.on("disconnect", () => {
                 this.sensors = this.sensors.filter(s => s.uuid !== sensor.uuid);
                 this.emit("removeSensor", sensor);
@@ -57,6 +57,7 @@ export default class MqttClient extends EventEmitter {
 }
 
 export class Sensor extends EventEmitter {
+    settings = {};
     private connection: MqttClient;
     private readonly _topic: string;
     private readonly _uuid: string;
@@ -84,12 +85,11 @@ export class Sensor extends EventEmitter {
             }
         });
         this.requestConfiguration().then(() => initCallback());
+        this.requestSettings();
 
         this._aliveInterval = setInterval(() => {
             if (this._alive < 0) {
-                clearInterval(this._aliveInterval);
-                connection.unsubscribe(this._topic + "/#");
-                this.emit("disconnect");
+                this.kill();
             }
             this._alive--;
         }, 1000);
@@ -143,10 +143,22 @@ export class Sensor extends EventEmitter {
         }
     }
 
+    public kill() {
+        clearInterval(this._aliveInterval);
+        this.connection.unsubscribe(this._topic + "/#");
+        this.emit("disconnect");
+    }
+
     private async requestConfiguration() {
         const res = await axios.get("http://" + this._ip + "/");
         this._version = res.data.version;
         this._type = res.data.type;
         Logger.debug("Request Configuration", this.toString());
+    }
+
+    private async requestSettings() {
+        const res = await axios.get("http://" + this._ip + "/settings");
+        this.settings = res.data;
+        Logger.debug("Request Settings", this.settings);
     }
 }

@@ -8,16 +8,20 @@ import * as bodyParser from "body-parser";
 import RealtimeRouter from "./routes/realtime";
 import {Logger} from "../utils/logger";
 import * as log4js from "log4js";
+import MqttDataWorker from "../mqtt/mqtt_dataworker";
+import UpdatesRouter from "./routes/updates";
 
 export default class TempiAPI {
     public database: DataBase;
+    public mqtt: MqttDataWorker;
     private app: Express;
     private readonly port: number;
 
-    constructor(port: number, database: DataBase, discoveryPort: number) {
+    constructor(port: number, database: DataBase, mqtt: MqttDataWorker, discoveryPort: number) {
         this.app = express();
         this.port = port;
         this.database = database;
+        this.mqtt = mqtt;
 
         // parse application/x-www-form-urlencoded
         this.app.use(bodyParser.urlencoded({extended: false}))
@@ -35,6 +39,7 @@ export default class TempiAPI {
         });
         this.app.use("/api" + SensorRouter.route, new SensorRouter(this).get());
         this.app.use("/api" + RealtimeRouter.route, new RealtimeRouter(this).get());
+        this.app.use("/api" + UpdatesRouter.route, new UpdatesRouter(this).get());
     }
 
     serve() {

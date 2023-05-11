@@ -41,6 +41,15 @@ export default class SensorRouter {
             res.json(await api.database.getSingleSensorData(req.params.uuid));
         });
 
+        this.router.get("/:uuid/settings", async (req, res) => {
+            const sensor = api.mqtt.getSensors().find(s => s.uuid == req.params.uuid);
+            if (sensor) {
+                res.json(sensor.settings);
+            } else {
+                res.sendStatus(404);
+            }
+        });
+
         this.router.get("/:uuid/:label", async (req, res) => {
             const rawData = await api.database.getSensorData(req.params.uuid, req.params.label);
             res.json(rawData.map(rawDataObject => {

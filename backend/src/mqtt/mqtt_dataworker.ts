@@ -41,5 +41,7 @@ export default class MqttDataWorker {
         });
     }
 
-
+    getSensors() {
+        return this.mqtt.getSensors();
+    }
 }

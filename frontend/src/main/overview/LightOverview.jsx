@@ -4,7 +4,7 @@ import {addHours, subDays, subHours, subMinutes} from "date-fns";
 import SensorSettings from "./SensorSettings";
 import {getSensorDataTimeline} from "../../api/api";
 
-export default class TemperatureOverview extends Component {
+export default class LightOverview extends Component {
 
     constructor(props) {
         super(props);
@@ -26,7 +26,7 @@ export default class TemperatureOverview extends Component {
                 this.setState({
                     chartData: [...this.state.chartData, {
                         timestamp: new Date(),
-                        value: JSON.parse(e.data).temp
+                        value: JSON.parse(e.data).light
                     }]
                 });
             }
@@ -75,8 +75,8 @@ export default class TemperatureOverview extends Component {
             <Col className="m-2">
                 <Card>
                     <Title>
-                        <Metric>{filteredData.length > 0 ? filteredData[filteredData.length - 1].value : null}°C</Metric>
-                        Temperature Chart
+                        <Metric>{filteredData.length > 0 ? Math.round(filteredData[filteredData.length - 1].value / 2000 * 100) : null}%</Metric>
+                        Light Chart
                     </Title>
                     {/*
                     <TabList
@@ -96,13 +96,13 @@ export default class TemperatureOverview extends Component {
                         data={filteredData}
                         index="timestamp"
                         categories={["value"]}
-                        colors={["blue"]}
+                        colors={["yellow"]}
                         showAnimation={true}
                         showLegend={false}
                         showGradient={true}
                         valueFormatter={this.dataFormatter}
-                        minValue={-30}
-                        maxValue={60}
+                        minValue={0}
+                        maxValue={100}
                     />
                 </Card>
             </Col>

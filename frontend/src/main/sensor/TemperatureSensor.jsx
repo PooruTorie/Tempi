@@ -5,7 +5,7 @@ import {remap} from "../../utils/MathUtils";
 export default class TemperatureSensor extends Component {
 
     dataFormatter(number: number) {
-        return `${Intl.NumberFormat("de").format(number).toString()} °C`;
+        return `${Intl.NumberFormat("de").format(number / 2000 * 100).toString()} %`;
     }
 
     render() {

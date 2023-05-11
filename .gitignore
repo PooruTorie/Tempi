@@ -10,6 +10,8 @@ broker/log
 backend/.idea
 backend/node_modules
 backend/package-lock.json
+backend/updates/config.json
+backend/updates/*.bin
 
 frontend/node_modules
 frontend/.idea

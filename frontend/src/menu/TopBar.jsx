@@ -2,7 +2,7 @@ import {Component} from "react";
 import {Button, Card, Col, Grid} from "@tremor/react";
 import {SearchIcon} from "@heroicons/react/solid";
 import logo from "../assets/logo.png";
-import {discover} from "../api/Sensor";
+import {discover} from "../api/api";
 
 export default class TopBar extends Component {
 

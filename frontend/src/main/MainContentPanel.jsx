@@ -2,7 +2,7 @@ import {Component} from "react";
 import {Col, Grid, Metric, Text} from "@tremor/react";
 import NewSensorManager from "./NewSensorManager";
 import SensorCard from "./sensor/SensorCard";
-import {getSensors} from "../api/Sensor";
+import {getSensors} from "../api/api";
 import OverviewContentPanel from "./overview/OverviewContentPanel";
 
 export default class MainContentPanel extends Component {

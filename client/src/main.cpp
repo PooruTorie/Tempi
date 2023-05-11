@@ -22,19 +22,22 @@ Discovery discovery;
 OneWire oneWire(SENSOR_PIN);
 DS18B20 sensor(&oneWire);
 #elif CONFIG_DEVICE_TYPE == 2
-#define SENSOR_PIN 19
+#define SENSOR_PIN 32
 #endif
 
 int pullSpeed = 5000;
 
 void setSettings(AsyncWebServerRequest *request) {
-    if (!request->hasParam("pullSpeed")) {
-        request->send(420);
-        return;
+    if (request->hasParam("pullSpeed")) {
+        pullSpeed = request->getParam("pullSpeed")->value().toInt();
     }
-    pullSpeed = request->getParam("pullSpeed")->value().toInt();
 
-    request->send(200);
+    DynamicJsonDocument configJSON(1024);
+    configJSON["pullSpeed"] = pullSpeed;
+
+    String json;
+    serializeJson(configJSON, json);
+    request->send(200, "application/json", json);
 }
 
 void setBroker(AsyncWebServerRequest *request) {
@@ -99,7 +102,7 @@ void loop() {
         if (t > pullSpeed) {
             t = 0;
 #if CONFIG_DEVICE_TYPE == 1
-            #ifndef CONFIG_DEBUG_DATA
+#ifndef CONFIG_DEBUG_DATA
             sensor.requestTemperatures();
 
             int tt = 0;
@@ -112,7 +115,7 @@ void loop() {
             client.publishToSensorTopic("temp", String(random(-20, 50)));
 #endif
 #elif CONFIG_DEVICE_TYPE == 2
-            #ifndef CONFIG_DEBUG_DATA
+#ifndef CONFIG_DEBUG_DATA
             int lightValue = analogRead(SENSOR_PIN);
 
             client.publishToSensorTopic("light", String(lightValue));
